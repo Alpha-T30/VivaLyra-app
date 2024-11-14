@@ -4,9 +4,9 @@ import { Button } from "react-native-paper";
 export default function Index() {
   return (
     <View className="flex-1 items-center justify-center bg-green-100">
-      <Text className="font-bold">Edit app/index.tsx to edit this screen.</Text>
+      <Text className="font-bold"> Home Page Tab</Text>
       <Button
-        icon="camera"
+        icon="cart"
         mode="contained"
         onPress={() => console.log("Pressed")}
       >

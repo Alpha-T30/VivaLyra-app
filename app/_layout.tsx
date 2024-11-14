@@ -1,13 +1,20 @@
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
-import "../global.css"; // Importing the global CSS for Tailwind styles
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import "../global.css";
 
 export default function RootLayout() {
   return (
-    <PaperProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ title: "Home" }} />
-      </Stack>
-    </PaperProvider>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <PaperProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="signup" options={{ headerShown: false }} />
+            <Stack.Screen name="signin" options={{ headerShown: false }} />
+          </Stack>
+        </PaperProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
