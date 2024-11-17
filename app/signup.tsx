@@ -6,12 +6,17 @@ import { router } from "expo-router";
 import { useForm, Controller, useFormState } from "react-hook-form";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/auth-context";
 export default function Signup() {
+  const { session, user, isFetching } = useAuth();
+  console.log(session, user, isFetching);
   const signUpSchema = zod.object({
     name: zod.string(),
     email: zod.string().email({ message: "Incert a valid email" }),
     password: zod.string().min(6, { message: "Need at least 6 characters" }),
   });
+
   const {
     control,
     handleSubmit,
@@ -25,10 +30,20 @@ export default function Signup() {
     },
   });
 
-  const signUp = async (data: zod.infer<typeof signUpSchema>) => {
+  const signUp = async (userdata: zod.infer<typeof signUpSchema>) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: userdata.email,
+      password: userdata.password,
+      options: {
+        data: {
+          name: userdata.name,
+        },
+      },
+    });
     console.log(data);
-    console.log("pressedddd...");
+    console.log(error?.message);
   };
+
   return (
     <View className="flex-1 gap-4 justify-center items-center">
       <View className=" p-3 w-full flex gap-4">

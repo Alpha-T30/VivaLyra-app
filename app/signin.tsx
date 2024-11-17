@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import * as zod from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { supabase } from "@/lib/supabase";
 
 export default function Signin() {
   const signinSchema = zod.object({
@@ -23,8 +24,10 @@ export default function Signin() {
       password: "",
     },
   });
-  const signIn = (value: zod.infer<typeof signinSchema>) => {
-    console.log(value);
+  const signIn = async (value: zod.infer<typeof signinSchema>) => {
+    const { data, error } = await supabase.auth.signInWithPassword(value);
+    console.log(data);
+    console.log(error?.message);
   };
   return (
     <View className="flex-1 gap-4 justify-center items-center">
