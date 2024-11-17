@@ -3,25 +3,101 @@ import React from "react";
 import { Button, TextInput } from "react-native-paper";
 import { blue } from "react-native-reanimated/lib/typescript/Colors";
 import { router } from "expo-router";
-
+import { useForm, Controller, useFormState } from "react-hook-form";
+import * as zod from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 export default function Signup() {
+  const signUpSchema = zod.object({
+    name: zod.string(),
+    email: zod.string().email({ message: "Incert a valid email" }),
+    password: zod.string().min(6, { message: "Need at least 6 characters" }),
+  });
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const signUp = async (data: zod.infer<typeof signUpSchema>) => {
+    console.log(data);
+    console.log("pressedddd...");
+  };
   return (
     <View className="flex-1 gap-4 justify-center items-center">
       <View className=" p-3 w-full flex gap-4">
-        <TextInput label="name" right={<TextInput.Icon icon="pen" />} />
-
-        <TextInput label="email" right={<TextInput.Icon icon="email" />} />
-
-        <TextInput
-          label="Password"
-          secureTextEntry
-          right={<TextInput.Icon icon="eye" />}
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <>
+              <TextInput
+                placeholder="Name"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                editable={!isSubmitting}
+                right={<TextInput.Icon icon="pen" />}
+              />
+              {errors.name && (
+                <Text className="text-red-500">{errors.name?.message}</Text>
+              )}
+            </>
+          )}
         />
+
+        <Controller
+          name="email"
+          control={control}
+          render={({ field: { value, onBlur, onChange } }) => (
+            <>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="Email"
+                editable={!isSubmitting}
+                right={<TextInput.Icon icon="email" />}
+              />
+              {errors.email && (
+                <Text className="text-red-500">{errors.email?.message}</Text>
+              )}
+            </>
+          )}
+        ></Controller>
+        <Controller
+          name="password"
+          control={control}
+          render={({ field: { value, onBlur, onChange } }) => (
+            <>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                secureTextEntry={true}
+                placeholder="Password"
+                editable={!isSubmitting}
+                right={<TextInput.Icon icon="eye" />}
+              />
+              {errors.password && (
+                <Text className="text-red-500">{errors.password?.message}</Text>
+              )}
+            </>
+          )}
+        ></Controller>
+
         <Button
+          disabled={isSubmitting}
           contentStyle={{ height: 60 }}
           icon="cursor-default-click"
           mode="contained"
-          onPress={() => console.log("Pressed")}
+          onPress={handleSubmit(signUp)}
         >
           Sign Up
         </Button>

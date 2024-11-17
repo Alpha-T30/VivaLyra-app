@@ -1,9 +1,11 @@
 import ProductCard from "@/components/ProductCard";
 
 import useProductStore from "@/store/productStore";
+import { Redirect } from "expo-router";
 import { View, FlatList, Dimensions } from "react-native";
 
 export default function Index() {
+  return <Redirect href={"/signup"}></Redirect>;
   const initialProducts = useProductStore((state) => state.initialProducts); // Reactive hook
   const numColumns = 2;
   console.log(initialProducts);
