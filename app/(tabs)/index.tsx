@@ -1,14 +1,20 @@
 import ProductCard from "@/components/ProductCard";
+import { useAuth } from "@/context/auth-context";
 
 import useProductStore from "@/store/productStore";
 import { Redirect } from "expo-router";
+import { useEffect } from "react";
 import { View, FlatList, Dimensions } from "react-native";
 
 export default function Index() {
-  return <Redirect href={"/signup"}></Redirect>;
+  const { session, user } = useAuth();
+
+  if (!session) {
+    return <Redirect href={"/signin"}></Redirect>;
+  }
   const initialProducts = useProductStore((state) => state.initialProducts); // Reactive hook
   const numColumns = 2;
-  console.log(initialProducts);
+
   return (
     <View style={{ flex: 1, backgroundColor: "#d1d5db", padding: 5 }}>
       <FlatList

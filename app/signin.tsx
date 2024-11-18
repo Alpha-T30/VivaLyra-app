@@ -25,9 +25,10 @@ export default function Signin() {
     },
   });
   const signIn = async (value: zod.infer<typeof signinSchema>) => {
-    const { data, error } = await supabase.auth.signInWithPassword(value);
-    console.log(data);
-    console.log(error?.message);
+    const { error } = await supabase.auth.signInWithPassword(value);
+    if (error) {
+      console.log("error", error?.message);
+    }
   };
   return (
     <View className="flex-1 gap-4 justify-center items-center">

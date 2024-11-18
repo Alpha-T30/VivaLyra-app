@@ -1,4 +1,3 @@
-import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import {
   createContext,
@@ -7,50 +6,95 @@ import {
   useEffect,
   useState,
 } from "react";
-type authcontextType = {
-  session: Session | null;
-  user: any;
-  isFetching: boolean;
+import React from "react";
+
+import { supabase } from "../lib/supabase";
+import { View } from "react-native";
+import { ActivityIndicator, MD2Colors, Text } from "react-native-paper";
+
+type UserType = {
+  avatar_url: string;
+  created_at: string | null;
+  email: string;
+  expo_notification_token: string | null;
+  id: string;
+  stripe_customer_id: string | null;
+  type: string | null;
 };
-const AuthContext = createContext<authcontextType>({
+
+type AuthData = {
+  session: Session | null;
+  mounting: boolean;
+  user: UserType | null;
+};
+
+const AuthContext = createContext<AuthData>({
   session: null,
+  mounting: true,
   user: null,
-  isFetching: true,
 });
-export default function AuthContextProvider({ children }: PropsWithChildren) {
-  const [user, setUser] = useState<any>(null);
+
+export default function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
-  const [isFetching, setFetching] = useState<boolean>(true);
+  const [user, setUser] = useState<UserType | null>(null);
+  const [mounting, setMounting] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
       setSession(session);
+
       if (session) {
+        console.log("Session fetched: ", session);
         const { data: user, error } = await supabase
           .from("users")
           .select("*")
           .eq("id", session.user.id)
           .single();
+
         if (error) {
-          console.log(error.message);
+          console.error("Error fetching user: ", error);
         } else {
           setUser(user);
         }
       }
-      setFetching(false);
+
+      setMounting(false);
     };
 
-    fetchUserData();
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    fetchSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+        console.log("Session from authStateChange: ", session);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
+
   return (
-    <AuthContext.Provider value={{ session, user, isFetching }}>
-      {children}
+    <AuthContext.Provider value={{ session, mounting, user }}>
+      {mounting ? (
+        <View className="flex-1 justify-center items-center flex-row gap-5">
+          <Text style={{ color: MD2Colors.blue500 }} variant="headlineLarge">
+            Loading...
+          </Text>
+          <ActivityIndicator
+            hidesWhenStopped
+            animating={mounting}
+            color={MD2Colors.blue500}
+            size="large"
+          />
+        </View>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }

@@ -9,8 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/auth-context";
 export default function Signup() {
-  const { session, user, isFetching } = useAuth();
-  console.log(session, user, isFetching);
+  const { session, user, mounting } = useAuth();
+
   const signUpSchema = zod.object({
     name: zod.string(),
     email: zod.string().email({ message: "Incert a valid email" }),
@@ -31,17 +31,18 @@ export default function Signup() {
   });
 
   const signUp = async (userdata: zod.infer<typeof signUpSchema>) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email: userdata.email,
       password: userdata.password,
       options: {
         data: {
           name: userdata.name,
+          avatar_url: "https://wallpapercave.com/wp/wp7149700.jpg",
         },
       },
     });
-    console.log(data);
-    console.log(error?.message);
+
+    console.log(error);
   };
 
   return (
